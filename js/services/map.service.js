@@ -1,52 +1,66 @@
-
 export const mapService = {
-    initMap,
-    addMarker,
-    panTo
-}
+  initMap,
+  addMarker,
+  panTo,
+};
 
 var gMap;
 
 function initMap(lat = 32.0749831, lng = 34.9120554) {
-    console.log('InitMap');
-    return _connectGoogleApi()
-        .then(() => {
-            console.log('google available');
-            gMap = new google.maps.Map(
-                document.querySelector('#map'), {
-                center: { lat, lng },
-                zoom: 15
-            })
-            console.log('Map!', gMap);
-        })
+  console.log('InitMap');
+  return _connectGoogleApi().then(() => {
+    console.log('google available');
+    gMap = new google.maps.Map(document.querySelector('#map'), {
+      center: { lat, lng },
+      zoom: 15,
+    });
+    console.log('Map!', gMap);
+  });
 }
 
 function addMarker(loc) {
-    var marker = new google.maps.Marker({
-        position: loc,
-        map: gMap,
-        title: 'Hello World!'
-    });
-    return marker;
+  var marker = new google.maps.Marker({
+    position: loc,
+    map: gMap,
+    title: 'Hello World!',
+  });
+  return marker;
 }
 
 function panTo(lat, lng) {
-    var laLatLng = new google.maps.LatLng(lat, lng);
-    gMap.panTo(laLatLng);
+  var laLatLng = new google.maps.LatLng(lat, lng);
+  gMap.panTo(laLatLng);
 }
 
-
-
 function _connectGoogleApi() {
-    if (window.google) return Promise.resolve()
-    const API_KEY = ''; //TODO: Enter your API Key
-    var elGoogleApi = document.createElement('script');
-    elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`;
-    elGoogleApi.async = true;
-    document.body.append(elGoogleApi);
+  if (window.google) return Promise.resolve();
+  const API_KEY = 'AIzaSyBkXRKeDsKOa1qh717CgliMSCZYzfb_UBA'; //TODO: Enter your API Key
+  var elGoogleApi = document.createElement('script');
+  elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`;
+  elGoogleApi.async = true;
+  document.body.append(elGoogleApi);
 
-    return new Promise((resolve, reject) => {
-        elGoogleApi.onload = resolve;
-        elGoogleApi.onerror = () => reject('Google script failed to load')
-    })
+  return new Promise((resolve, reject) => {
+    elGoogleApi.onload = resolve;
+    elGoogleApi.onerror = () => reject('Google script failed to load');
+  });
+}
+
+// FIX
+
+var url = 'https://github.io/me/travelTip/index.html?lat=3.14&lng=1.63';
+
+var lat = getParameterByName('lat', url);
+var lng = getParameterByName('lng', url);
+
+console.log('lat', lat);
+console.log('lng', lng);
+
+function getParameterByName(name, url) {
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
