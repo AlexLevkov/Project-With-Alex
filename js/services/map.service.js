@@ -53,6 +53,8 @@ var url = 'https://github.io/me/travelTip/index.html?lat=3.14&lng=1.63';
 var lat = getParameterByName('lat', url);
 var lng = getParameterByName('lng', url);
 
+var x = 0;
+
 console.log('lat', lat);
 console.log('lng', lng);
 
@@ -64,3 +66,4 @@ function getParameterByName(name, url) {
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+//123
