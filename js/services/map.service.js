@@ -1,8 +1,20 @@
+'use strict';
+
+import { utilService } from './util-service.js';
+import { storageService } from './storage-service.js';
+
+const KEY = 'locationsDB';
+
 export const mapService = {
   initMap,
   addMarker,
   panTo,
+  getLocations,
 };
+
+var gLocations = storageService.load(KEY) || [];
+
+// window.gLocations = storageService.load(KEY) || [];
 
 var gMap;
 
@@ -15,7 +27,31 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
       zoom: 15,
     });
     console.log('Map!', gMap);
+    console.log('getting to on Map click event');
+
+    gMap.addListener('click', (mapsMouseEvent) => {
+      var position = mapsMouseEvent.latLng;
+      console.log('position', position.toJSON());
+      createLocation(position.toJSON());
+    });
+
+    // onMapClick();
   });
+}
+
+function createLocation({ lat, lng }) {
+  const location = {
+    id: utilService.makeId(),
+    name: prompt('name please'),
+    lat,
+    lng,
+    weather: 'good',
+    createdAt: Date.now(),
+    updtaedAt: Date.now(),
+  };
+  console.log('location', location);
+  gLocations.push(location);
+  storageService.save(KEY, gLocations);
 }
 
 function addMarker(loc) {
@@ -28,6 +64,9 @@ function addMarker(loc) {
 }
 
 function panTo(lat, lng) {
+  console.log('pan to');
+  console.log('lat', lat);
+  console.log('lng', lng);
   var laLatLng = new google.maps.LatLng(lat, lng);
   gMap.panTo(laLatLng);
 }
@@ -67,3 +106,56 @@ function getParameterByName(name, url) {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 //123
+
+function onMapClick() {
+  console.log('on map click');
+  const myLatlng = { lat: -25.363, lng: 131.044 };
+  const map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 4,
+    center: myLatlng,
+  });
+  // Create the initial InfoWindow.
+  let infoWindow = new google.maps.InfoWindow({
+    content: 'Click the map to get Lat/Lng!',
+    position: myLatlng,
+  });
+  infoWindow.open(map);
+  // Configure the click listener.
+  map.addListener('click', (mapsMouseEvent) => {
+    // Close the current InfoWindow.
+    infoWindow.close();
+    // Create a new InfoWindow.
+    infoWindow = new google.maps.InfoWindow({
+      position: mapsMouseEvent.latLng,
+    });
+    infoWindow.setContent(
+      JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+    );
+    infoWindow.open(map);
+  });
+}
+
+function makeId(length = 6) {
+  var txt = '';
+  var possible =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (var i = 0; i < length; i++) {
+    txt += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+
+  return txt;
+}
+
+function saveToStorage(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+function loadFromStorage(key) {
+  var val = localStorage.getItem(key);
+  return JSON.parse(val);
+}
+
+function getLocations() {
+  return gLocations;
+}
